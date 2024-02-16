@@ -1,0 +1,692 @@
+---
+title: "RDA-SHARC's Open Science Rewards and Incentives Survey"
+execute-dir: project
+format: 
+  html:
+    toc: true
+    toc-location: right
+    smooth-scroll: true
+    html-math-method: katex
+    code-fold: true
+    self-contained: true
+editor: source
+author: 'Florencia Grattarola'
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+---
+
+```{r}
+#| label: setup
+#| echo: false
+#| eval: true
+#| message: false
+
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, 
+                      dpi=300, 
+                      tidy.opts=list(width.cutoff=40), tidy=TRUE,
+                      options(scipen = 1, digits = 2))
+```
+
+```{r}
+#| label: library-data
+#| echo: false
+#| eval: true
+#| message: false
+library(knitr)
+library(webr)
+library(lubridate)
+library(janitor)
+library(plyr)
+library(likert)
+library(rnaturalearth)
+library(sf)
+sf::sf_use_s2(FALSE)
+library(tidyverse)
+
+survey <- read_csv('data/data_survey_aggregated_1.csv')
+survey <- survey %>% 
+  remove_empty(c('rows', 'cols')) %>% 
+  clean_names() 
+
+# simplify gender field
+survey <- survey %>% 
+  mutate(gender=ifelse(grepl('female|F|여|féminin|Woman|mujer|femenino',
+                             your_gender, ignore.case = T), 'female', 
+                       ifelse(grepl('Male|male|M|남|masculino', 
+                                    your_gender, ignore.case = F), 'male', 
+                              ifelse(grepl('binary|queer', 
+                                    your_gender, ignore.case = F), 'non-binary / gender-queer',
+                              'no response'))))
+
+# disciplines
+disciplines <- survey %>% 
+  rename(disciplines=starts_with('what_are_your_main_disciplinary_fields')) %>% 
+  select(disciplines) 
+
+world <- ne_countries(scale = 50, returnclass = 'sf') %>% 
+  select(name)
+
+world_survey <- left_join(world,
+  survey %>% 
+    group_by(which_country_do_you_work_in) %>% count() %>% 
+    rename(name=which_country_do_you_work_in, responses=n) %>% 
+    mutate(name=ifelse(name=='Korea, Rep.', 'South Korea',
+                          ifelse(name=='United States', 'United States of America', name)))) %>% 
+  select(name, responses) 
+```
+
+This survey addresses awareness of Open Science activities and existing & expected reward systems in research assessment, in particular for sharing activities, in different contexts.    
+
+**Quick summary** of respondents background: We received `r nrow(survey)` responses, from people working in `r length(unique(survey$which_country_do_you_work_in))` countries, of which `r nrow(filter(survey, gender=='female'))/nrow(survey)*100`% declare their gender was female, `r nrow(filter(survey, gender=='male'))/nrow(survey)*100`% male, `r nrow(filter(survey, gender=='non-binary / gender-queer'))/nrow(survey)*100`% non-binary or gender-queer and `r nrow(filter(survey, gender=='no response'))/nrow(survey)*100`% had no response. Most respondents had 'Researcher' as their main job title (`r nrow(filter(survey, main_position_job_title_which_of_the_following_are_you_now=='Researcher'))/nrow(survey)*100`%), were affiliated to a 'University' (`r nrow(filter(survey, please_select_the_type_of_organisation_you_are_primarily_affiliated_with=='University'))/nrow(survey)*100`%) or a 'Research institute' (`r nrow(filter(survey, please_select_the_type_of_organisation_you_are_primarily_affiliated_with=='Research institute'))/nrow(survey)*100`%), and had between 10 and 20 years of experience in their field (`r nrow(filter(survey, how_long_have_you_been_working_in_your_field=='10-20 years'))/nrow(survey)*100`%).  
+
+# Section 1
+
+## Are you familiar with Open Science?
+
+```{r}
+#| label: familiar-with-OS
+#| echo: true
+#| eval: true
+#| message: false
+
+survey %>% 
+    group_by(are_you_familiar_with_open_science) %>% 
+    count() %>% ungroup() %>%
+  mutate(`%` = scales::label_percent()(n / sum(n))) %>%
+  rename(`Are you familiar with Open Science?`= 
+           are_you_familiar_with_open_science)  %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+# general
+survey %>% 
+    group_by(are_you_familiar_with_open_science) %>% 
+    count() %>% 
+    ggplot(aes(y=n, x='', fill=are_you_familiar_with_open_science)) +
+    geom_bar(stat = "identity", position = 'fill') +
+    scale_y_continuous(labels = scales::percent_format()) +
+    scale_fill_brewer(palette = "Set1") +
+    theme_light() + 
+    labs(fill='Are you familiar\nwith Open Science?', x='', y='')
+```
+
+## Are you involved in some of the following Open Science activities?
+
+```{r }
+#| label: involve-in-OS-activities
+#| echo: true
+#| eval: true
+#| message: false
+
+# Select only the likert items in the survey
+items_involved <- select(survey, starts_with("are_you_involved_in_some_of"))
+
+# Rename the items so that the question statement becomes the name
+names(items_involved) <- c("Sharing a research manuscript as a preprint",
+  "Publishing a paper or monograph book as open access",
+  "Preregistration of the study design, methods, hypothesis etc., prior to commencing the research",
+  "Open or FAIR data management and sharing (for research data, software, models, algorithms, workflows etc.)",
+  "Participation in open peer review (being reviewed or the reviewer)",
+  "Participation in public engagement, including citizen or community science",
+  "Collaboration via virtual research environments or virtual laboratories",
+  "None of the above")
+
+# We don't want this option
+items_involved <- items_involved %>% select(-`None of the above`)
+
+# A custom function to recode numerical responses into ordered factors
+likert_recode_yn <- function(x) {
+  y <- factor(x, levels = c("No", "Yes"), exclude="N/A")
+  return(y)
+}
+
+# Transform the items into factors and save the data set as a likert object
+items_involved <- items_involved %>%
+  mutate_all(likert_recode_yn) %>% as.data.frame() %>% 
+  likert::likert()
+
+# percentages
+items_involved$results %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position")) %>% 
+  kableExtra::column_spec(1, width = "30em")
+
+# plot
+likert.bar.plot(items_involved,
+                plot.percent.low = FALSE,
+                plot.percent.high = FALSE,
+                col=c("#D7B365","#59B4AB"),
+                wrap=40,
+                plot.percents = TRUE) +
+    ggpubr::theme_cleveland() +
+    theme(legend.position="bottom")
+
+```
+
+## Are you familiar with the FAIR (Findable, Accessible, Interoperable, and Reusable) principles?
+
+```{r}
+#| label: familiar-with-FAIR
+#| echo: true
+#| eval: true
+#| message: false
+
+survey %>% 
+  group_by(are_you_familiar_with_the_fair_findable_accessible_interoperable_and_reusable_principles_defined_here) %>% 
+  count() %>% ungroup() %>%
+  mutate(`%` = scales::label_percent()(n / sum(n))) %>% 
+  rename(Responses=
+           are_you_familiar_with_the_fair_findable_accessible_interoperable_and_reusable_principles_defined_here) %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+# general
+survey %>% 
+    group_by(are_you_familiar_with_the_fair_findable_accessible_interoperable_and_reusable_principles_defined_here) %>% 
+    count() %>% 
+    ggplot(aes(y=n, x='', 
+               fill=are_you_familiar_with_the_fair_findable_accessible_interoperable_and_reusable_principles_defined_here)) +
+    geom_bar(stat = "identity", position = 'fill') +
+    scale_y_continuous(labels = scales::percent_format()) +
+    scale_fill_brewer(palette = "Set1") +
+    theme_light() + 
+    labs(fill='Are you familiar\nwith the FAIR principles?', x='', y='')
+```
+
+## Are you involved in some steps of data FAIRification process?
+
+```{r}
+#| label: involved-in-FAIRification
+#| echo: true
+#| eval: true
+#| message: false
+
+survey %>% 
+  group_by(are_you_involved_in_some_steps_of_data_fai_rification_process_such_as_those_referred_to_here) %>% 
+  count() %>% ungroup() %>%
+  mutate(`%` = scales::label_percent()(n / sum(n))) %>% 
+  rename(Responses=
+           are_you_involved_in_some_steps_of_data_fai_rification_process_such_as_those_referred_to_here) %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+# general
+survey %>%
+  rename(response=are_you_involved_in_some_steps_of_data_fai_rification_process_such_as_those_referred_to_here) %>% 
+  group_by(response) %>% 
+  count() %>% 
+  ggplot(aes(x='', y=n, fill=fct_relevel(response, "No", "Yes", "N/A"))) +
+  geom_bar(stat = "identity", position = 'fill') +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_brewer(palette = "Set1") +
+  theme_light() + 
+  labs(fill='Are you involved in\nsome steps of data\nFAIRification process?', x='', y='')
+```
+
+## Does your institute/organisation have policies on various Open Science activities?
+
+```{r}
+#| label: organisation-OS-policies
+#| echo: true
+#| eval: true
+#| message: false
+
+survey %>% 
+  group_by(does_your_institute_organisation_have_policies_on_various_open_science_activities) %>% 
+  count() %>% ungroup() %>%
+  mutate(`%` = scales::label_percent()(n / sum(n))) %>% 
+  rename(Responses=
+           does_your_institute_organisation_have_policies_on_various_open_science_activities) %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+# general
+survey %>% 
+  rename(response=does_your_institute_organisation_have_policies_on_various_open_science_activities) %>% 
+  group_by(response) %>% 
+  count() %>% 
+  ggplot(aes(x='', y=n, fill=fct_relevel(response, "No", "Yes", "N/A"))) +
+  geom_bar(stat = "identity", position = 'fill') +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_brewer(palette = "Set1") +
+  theme_light() +
+  labs(fill='Does your institute/\norganisation have policies\non various Open Science\nactivities?', x='', y='')
+```
+
+# Section 2
+
+## Could you please specify to what extent you feel the following activities should be credited / rewarded? 
+
+Rewards may include career promotion, grants/funding/prizes, gained credits in a research evaluation procedure, authorship/ contributorship, increased academic visibility.
+
+```{r}
+#| label: likert
+#| echo: true
+#| eval: true
+#| fig.width: 14
+#| fig.height: 6
+
+# Select only the likert items in the survey
+items <- select(survey, 
+                starts_with(c("could_you_please_specify_to_what_extent")))
+
+# Rename the items so that the question statement becomes the name
+names(items) <- c(
+  "Sharing a research manuscript as a preprint",
+  "Publishing a paper or monograph book as open access",
+  "Preregistration of the study design, methods, hypothesis etc., prior to commencing the research",
+  "Open or FAIR data management and sharing (for research data, software, models, algorithms, workflows etc.)",
+  "Participation in open peer review (being reviewed or the reviewer)",
+  "Participation in public engagement, including citizen or community science",
+  "Collaboration via virtual research environments or virtual laboratories")
+
+# A custom function to recode numerical responses into ordered factors
+likert_recode <- function(x) {
+  y <- factor(x, 
+              levels = c("Definitely Not","Probably Not", 
+                         "Possibly", "Very Probably", "Definitely"), 
+                          exclude="No opinion")
+  return(y)
+}
+
+# Transform the items into factors and save the data set as a likert object
+items_likert <- items %>%
+  mutate_all(likert_recode) %>% as.data.frame() %>% 
+  likert::likert()
+
+# percentages
+items_likert$results %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position")) %>% 
+  kableExtra::column_spec(1, width = "10em")
+
+# plot
+likert.bar.plot(items_likert,
+                wrap=30,
+                centered = F,
+                plot.percent.neutral = TRUE,
+                plot.percent.low = TRUE, 
+                plot.percent.high = TRUE) + 
+    ggpubr::theme_cleveland() +
+    theme(legend.position="bottom")  
+
+```
+
+# Section 3
+
+## Does your institute/organisation have any initiative or tool which gives credits/rewards for Open Science activities?
+
+```{r}
+#| label: your-institute-rewards
+#| echo: true
+#| eval: true
+
+survey %>% 
+  group_by(does_your_institute_organisation_have_any_initiative_or_tool_which_gives_credits_rewards_for_open_science_activities) %>% 
+  count() %>% ungroup() %>%
+  mutate(`%` = scales::label_percent()(n / sum(n))) %>% 
+  rename(Responses=
+           does_your_institute_organisation_have_any_initiative_or_tool_which_gives_credits_rewards_for_open_science_activities) %>% 
+  knitr::kable(digits = 2) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+# general
+survey %>%
+  rename(response=does_your_institute_organisation_have_any_initiative_or_tool_which_gives_credits_rewards_for_open_science_activities) %>% 
+  group_by(response) %>% 
+  count() %>% 
+  ggplot(aes(y=n, x='', fill=response)) +
+  geom_bar(stat = "identity", position = 'fill') +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_brewer(palette = "Set1") +
+  theme_light() + 
+  labs(fill='Does your institute/organisation\nhave any initiative or tool which\ngives credits/rewards for\nOpen Science activities?', x='', y='')
+
+# by country
+survey %>%
+  rename(response=does_your_institute_organisation_have_any_initiative_or_tool_which_gives_credits_rewards_for_open_science_activities,
+         country=which_country_do_you_work_in) %>% 
+  group_by(response, country) %>% 
+  count() %>% filter(response=='Yes') %>% ggplot(aes(y=n, x=country, fill=country)) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Spectral") +
+  scale_fill_manual(values = colorRampPalette(RColorBrewer::brewer.pal(9, "Set1"))(15)) +
+  theme_light() + theme(axis.text.x = element_text(size=rel(0.5))) +
+  labs(caption ='Mentioned initiative or tool which gives credits/rewards for Open Science activities by country', fill='', x='', y='')
+
+```
+
+# Section 4
+
+## How would you want the previously mentioned Open Science activities to be rewarded?
+
+### Labels 
+
+```{r}
+#| label: how-would-you-like-to-OS-be-rewarded-word-cloud
+#| echo: true
+#| eval: true
+#| out.width: 100%
+#| fig-height: 8
+#| fig-dpi: 200
+
+rewardLabels <- survey %>%
+  rename(labels=suggested_rewards_categorised_according_to_shar_cs_rewarding_terminology) %>% 
+    separate_rows(labels, sep = ';') %>% 
+    mutate(labels=str_squish(labels)) %>%
+    filter(!is.na(labels) & labels!='') %>% 
+    mutate(labels=ifelse(labels=="good science\'", "\'good science\'", labels)) %>% 
+    mutate(labels=ifelse(labels=='funding/grants for OS activitie',
+                       'funding/grants for OS activities', labels)) %>% 
+    mutate(labels=ifelse(labels=='OS indicators in research evaluation processes',
+                       'OS indicators in research evaluation and/or career progression processes', labels))
+
+rewardLabels %>% 
+  group_by(labels) %>% 
+  count() %>% arrange(desc(n)) %>% ungroup() %>% 
+  mutate(`%` = scales::label_percent()(round(n / sum(n), 3))) %>% 
+  rename(`SHARC Rewards Terminology`=labels) %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+rewardLabels %>% filter(!is.na(labels)) %>%
+  group_by(labels) %>% count() %>% 
+  ggplot(aes(x='', y=n, fill=fct_reorder(labels, n))) +
+  geom_bar(stat = "identity", position = 'fill') +
+  guides(fill=guide_legend(ncol=1)) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_manual(values = colorRampPalette(RColorBrewer::brewer.pal(9, "Set1"))(19)) +
+  theme_light() + 
+  labs(fill='SHARC Rewards\nTerminology', x='', y='') +
+  theme(legend.position="right")
+
+most_common_rewards <- c(
+  'OS indicators in research evaluation and/or career progression processes',
+  'funding/grants for OS activities',
+  'awards/bonuses',
+  'research visibility indicators',
+  'authorship/contributorship'
+)
+
+rewardLabels %>% filter(!is.na(labels)) %>%
+  mutate(labels=ifelse(!labels %in% most_common_rewards,
+                           'others', labels)) %>% 
+  group_by(labels) %>% count() %>% 
+  ggplot(aes(x='', y=n, fill=fct_relevel(fct_reorder(labels, n), 'others'))) +
+  geom_bar(stat = "identity", position = 'fill') +
+  guides(fill=guide_legend(ncol=1)) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_brewer(palette="Set1") +
+  ggpubr::theme_cleveland() + 
+  labs(fill='SHARC Rewards\nTerminology', x='', y='') +
+  theme(legend.position="right")
+
+```
+
+# Respondents' background
+
+## Gender
+
+These are the different responses and how they were classified. I now added 'non-binary' as a different category and tagged all other as 'other responses'.
+
+```{r}
+#| label: gender-responses
+#| echo: true
+#| eval: true
+#| message: false
+#| tbl-cap: Gender responses
+survey %>% distinct(your_gender, gender) %>% kable()
+```
+
+  -   Your gender
+
+```{r}
+#| label: gender
+#| echo: true
+#| eval: true
+#| message: false
+
+survey %>% 
+  group_by(gender) %>% 
+  count() %>% ungroup() %>%
+  mutate(`%` = scales::label_percent()(round(n / sum(n), 3))) %>% 
+  rename(`Declared gender`= gender) %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+survey %>% 
+  group_by(gender) %>% 
+  count() %>% 
+  ggplot(aes(x='', y=n, fill=gender)) + 
+  geom_bar(stat = "identity", position = 'fill' ) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_light() + 
+  labs(fill='Gender', x='', y='')
+
+
+survey %>% 
+  rename(response=which_country_do_you_work_in) %>%
+  mutate(response_x=ifelse(response!='Korea, Rep.'&response!='France'&
+                             response!='United States'&response!='Uruguay',
+                           'Other countries', response)) %>% 
+  group_by(response_x) %>%
+  count()  %>% ungroup() %>%
+  mutate(`%` = scales::label_percent()(round(n / sum(n), 3))) %>% 
+  rename(Country= response_x) %>% arrange(desc(n)) %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+```
+
+## Country
+
+  - Which country do you work in?
+  
+```{r}
+#| label: country
+#| echo: true
+#| eval: true
+#| message: false
+
+survey %>% 
+  group_by(which_country_do_you_work_in) %>% 
+  count() %>%  ungroup() %>%
+  mutate(`%` = scales::label_percent()(round(n / sum(n), 3))) %>% 
+  rename(Country= which_country_do_you_work_in) %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+# which_country_do_you_work_in
+survey %>% 
+    rename(response=which_country_do_you_work_in) %>%
+    group_by(response) %>%
+    count() %>%  
+    ggplot(aes(x='', y=n, fill=fct_reorder(response, desc(n)))) +
+    geom_bar(stat = "identity") +
+    scale_fill_manual(values = colorRampPalette(RColorBrewer::brewer.pal(9, "Set1"))(37)) +
+    theme_light() + 
+    labs(caption = 'Which country do you work in?', fill='', x='', y='')
+
+# Korea, France, USA, Uruguay, and Other countries
+survey %>% 
+  rename(response=which_country_do_you_work_in) %>%
+  mutate(response_x=ifelse(response!='Korea, Rep.'&response!='France'&
+                            response!='United States'&response!='Uruguay', 
+                         'Other countries', response)) %>% 
+  group_by(response_x) %>%
+  count() %>% 
+  ggplot(aes(x='', y=n, fill=fct_relevel(fct_reorder(response_x, n), 'Other countries')), show.legend = FALSE) +
+  geom_bar(stat = "identity", position = 'fill') +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_brewer(palette = "Spectral") + labs(fill='') + 
+  theme_light() + 
+  labs(caption ='Which country do you work in?', x='', y='')
+
+survey %>% 
+  rename(response=which_country_do_you_work_in) %>%
+  mutate(response_x=ifelse(response!='Korea, Rep.'&response!='France'&
+                             response!='United States'&response!='Uruguay',
+                           'Other countries', response)) %>% 
+  group_by(response_x) %>%
+  count() %>%  ungroup() %>%
+  mutate(`%` = scales::label_percent()(round(n / sum(n), 3))) %>% 
+  rename(Country= response_x) %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+```
+
+### Map 
+
+```{r}
+#| label: map
+#| echo: true
+#| eval: true
+#| message: false
+
+# map plot
+world_survey %>%
+    st_cast('POLYGON') %>% 
+    mutate(responses=ifelse(name=='France' & grepl('-52', geometry), NA, responses)) %>% 
+    mutate(name=ifelse(name=='France' & is.na(responses), 'French Guyana', name)) %>% 
+    group_by(name) %>% 
+    dplyr::summarise(responses=max(responses)) %>%  ggplot() + geom_sf(aes(fill=responses), size=0.1) +
+    scale_fill_fermenter(palette ='Spectral', 
+                         breaks=c(0,1,2,3,4,5,10,15,20,25,39),
+                         na.value = 'grey95') +
+    theme_minimal() +
+    labs(fill='N') 
+```
+
+## Job title
+
+  -   Main position/job title: which of the following are you now?
+
+```{r}
+#| label: job-title
+#| echo: true
+#| eval: true
+#| message: false
+
+survey %>% 
+  rename(response=main_position_job_title_which_of_the_following_are_you_now) %>%
+  group_by(response) %>% 
+  count() %>% arrange(desc(n)) %>%ungroup() %>%
+  mutate(`%` = scales::label_percent()(round(n / sum(n), 3))) %>% 
+  rename(`Job title`= response) %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+```
+
+## Experience in the field
+
+  -   How long have you been working in your field?
+
+```{r}
+#| label: years-of-experience
+#| echo: true
+#| eval: true
+#| message: false
+
+survey %>% 
+  group_by(how_long_have_you_been_working_in_your_field) %>% 
+  count() %>% ungroup() %>%
+  mutate(`%` = scales::label_percent()(round(n / sum(n), 3))) %>% 
+  rename(`Experience in the field`= how_long_have_you_been_working_in_your_field) %>% 
+  mutate(index=ifelse(`Experience in the field`=='> 20 years', 1, 
+                      ifelse(`Experience in the field`=='10-20 years', 2, 
+                             ifelse(`Experience in the field`=='5-10 years', 3, 
+                                    ifelse(`Experience in the field`=='< 5 years', 4, 5))))) %>% 
+  arrange(index) %>% select(-index) %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+survey %>% 
+    rename(response=how_long_have_you_been_working_in_your_field) %>% 
+    group_by(response) %>%
+    count() %>%
+    filter(!is.na(response)) %>% 
+    ggplot(aes(x='', y=n, fill=fct_relevel(response,
+                                           '> 20 years',
+                                           '10-20 years',
+                                           '5-10 years',
+                                           '< 5 years'))) +
+    geom_bar(stat = "identity", position = 'fill' ) +
+    scale_y_continuous(labels = scales::percent_format()) +
+    scale_fill_brewer(palette = "Spectral") +
+    theme_light() + 
+    labs(fill='Years of experience', x='', y='')
+
+```
+
+## Affiliation type of organisation
+
+  -   Please select the type of organisation you are primarily affiliated with
+
+```{r}
+#| label: type-of-organisation
+#| echo: true
+#| eval: true
+#| message: false
+
+survey %>% 
+  rename(response=please_select_the_type_of_organisation_you_are_primarily_affiliated_with) %>%
+  group_by(response) %>% 
+  count() %>% arrange(desc(n))%>% ungroup() %>%
+  mutate(`%` = scales::label_percent()(round(n / sum(n), 3))) %>% 
+  rename(`Type of organisation`= response) %>% 
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+```
+
+## Disciplinary fields
+
+  -   What are your main disciplinary fields (up to 3; e.g., computer science, physics, biology, medicine)?
+  
+This plot is generated by classifying the disciplines according to **Wikipedia**'s [Outline of academic disciplines](https://en.wikipedia.org/wiki/Outline_of_academic_disciplines).
+
+
+```{r}
+#| label: disciplinary-fields
+#| echo: true
+#| eval: true
+#| message: false
+#| out-width: 90%
+#| fig-dpi: 200
+#| tbl-cap: 'List of disciplines'
+
+# disciplines
+disciplines <- survey %>% 
+  rename(disciplines=starts_with('what_are_your_main_disciplinary_fields')) %>% 
+  select(response_id, disciplines) %>% 
+  separate_rows(disciplines, sep = ';') %>% 
+  mutate(disciplines=str_squish(disciplines) %>% str_to_lower())
+
+new_wiki_disciplines <- read_csv('data/disciplines.csv')
+disciplines_for_plot <- left_join(disciplines, new_wiki_disciplines)
+
+disciplines_for_plot %>% 
+    filter(!is.na(subfield)) %>% 
+    group_by(field) %>% count() %>% arrange(desc(n)) %>% ungroup() %>%
+    mutate(`%` = scales::label_percent()(round(n / sum(n), 3))) %>% 
+    rename(Field=field) %>% 
+    kableExtra::kbl(booktabs = T) %>% 
+    kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+disciplines_for_plot %>% 
+    filter(!is.na(subfield)) %>% 
+    group_by(field, subfield) %>% count() %>% arrange(field, desc(n)) %>% ungroup() %>% head(n=25) %>% 
+    mutate(`%` = scales::label_percent()(round(n / sum(n), 3))) %>% 
+    rename(Field=field, `Sub-field`= subfield) %>% 
+    kableExtra::kbl(booktabs = T) %>% 
+    kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+disciplines_for_plot %>% 
+  filter(!is.na(subfield)) %>% 
+  group_by(field, subfield) %>% count() %>% 
+  PieDonut(aes(field, subfield, count=n), 
+           showPieName = F,
+           showRatioThreshold = 0.02,
+           labelposition = 1,
+           ratioByGroup = F)
+
+```

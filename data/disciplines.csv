@@ -1,0 +1,208 @@
+response_id,disciplines,field,subfield,discipline_id
+49,academic communications,Applied science,"Journalism, media studies and communication",5.10
+133,ai,Formal science,Computer science,4.1
+63,anatomy,Natural science,Biology,3.1
+60,anthropology,Social science,Anthropology,2.1
+398,applied mathematics,Formal science,Mathematics,4.2
+66,archaeology,Social science,Archaeology,2.2
+134,archival science,Applied science,Library and museum studies,5.12
+318,astronomy,Natural science,Astronomy,3.4
+316,astrophysics,Natural science,Physics,3.4
+99,atmospheric science,Natural science,Earth science,3.3
+135,author rights,Applied science,Law,5.11
+366,behavioural health sciences,Applied science,Medicine and health,5.13
+401,bibliometrics,Applied science,Library and museum studies,5.12
+22,biochemistry,Natural science,Chemistry,3.2
+385,biodiversity,Natural science,Biology,3.1
+34,biodiversity informatics,Formal science,Computer science,4.1
+366,bioethics,Humanities,Philosophy,1.6
+157,bioinformatics,Formal science,Computer science,4.1
+153,biolaw,Applied science,Law,5.11
+389,biological collections,Applied science,Library and museum studies,5.12
+57,biology,Natural science,Biology,3.1
+359,biomedical science,Applied science,Medicine and health,5.13
+286,biophysics,Natural science,Biology,3.1
+248,biostatistic,Natural science,Biology,3.1
+165,biostatistics,Natural science,Biology,3.1
+55,biotechnology,Natural science,Biology,3.1
+34,botany,Natural science,Biology,3.1
+87,business intelligence,Applied science,Business,5.3
+265,cardiovascular,Applied science,Medicine and health,5.13
+222,catalysis,Applied science,Engineering and technology: Chemical engineering,5.6.1
+19,cell and molecular biology,Natural science,Biology,3.1
+255,cell therapy,Applied science,Medicine and health,5.13
+359,chemical biology,Natural science,Chemistry,3.2
+222,chemical engineering,Applied science,Engineering and technology: Chemical engineering,5.6.1
+359,cheminformatics,Formal science,Computer science,4.1
+187,chemistry,Natural science,Chemistry,3.2
+297,citizen science,,,
+29,climate change policy,Applied science,Public administration:Public policy,5.15.1
+109,climate modeling,Natural science,Earth science,3.3
+138,climate science,Natural science,Earth science,3.3
+312,cognitive science,Formal science,Computer science,4.1
+62,community psychology,Social science,Psychology,2.6
+295,computational biology,Natural science,Biology,3.1
+43,computational materials science,Applied science,Engineering and technology: Materials science,5.6.5
+373,computational modelling,Formal science,Computer science,4.1
+350,computational neuroscience,Formal science,Computer science,4.1
+343,computational physics,Natural science,Physics,3.4
+359,computational science,Formal science,Computer science,4.1
+57,computer science,Formal science,Computer science,4.1
+185,computer vision,Formal science,Computer science,4.1
+135,copyright,Applied science,Law,5.11
+55,data,Formal science,Computer science,4.1
+226,data analysis,Formal science,Computer science,4.1
+143,data governance,Social science,Sociology,2.7
+395,data management,Applied science,Library and museum studies,5.12
+271,data science,Formal science,Computer science,4.1
+133,databases,Formal science,Computer science,4.1
+19,developmental biology,Natural science,Biology,3.1
+65,digital learning,Applied science,Engineering and technology: Educational technology,5.6.3
+2,digital rights,Applied science,Law,5.11
+62,drug abuse,Social science,Psychology,2.6
+154,e-democracy,Social science,Political science,2.5
+359,earth and life science,Natural science,Earth science,3.3
+137,earth observation,Applied science,Environmental studies and forestry,5.7
+93,earth science,Natural science,Earth science,3.3
+276,earth sciences,Natural science,Earth science,3.3
+59,ecology,Applied science,Environmental studies and forestry,5.7
+238,economic geography,Social science,Economics,2.3
+199,economics,Social science,Economics,2.3
+162,education,Applied science,Education,5.5
+292,educational sciences,Applied science,Education,5.5
+306,electrical engineering,Applied science,Engineering and technology: Electrical engineering,5.6.4
+99,energy engineering,Applied science,Engineering and technology: Chemical engineering,5.6.1
+197,engineering,Applied science,Engineering and technology,6.1
+48,environmenrtal engineering,Applied science,Engineering and technology: Civil engineering,5.6.2
+8,environment,Natural science,Earth science,3.3
+21,environmental and agricultural microbiology,Applied science,Environmental studies and forestry,5.7
+61,environmental and earth sciences,Natural science,Earth science,3.3
+345,environmental science,Natural science,Earth science,3.3
+164,epidemiology,Applied science,Medicine and health,5.13
+39,ethics,Humanities,Philosophy,1.6
+172,ethics and law,Humanities,Philosophy,1.6
+48,fluid mechanics,Applied science,Engineering and technology: Mechanical engineering,5.6.6
+39,genetics,Natural science,Biology,3.1
+196,genomics,Natural science,Biology,3.1
+16,geoarchaeology,Social science,Archaeology,2.2
+137,geographic information science,Natural science,Earth science,3.3
+374,geography,Social science,Geography,2.4
+52,geological,Natural science,Earth science,3.3
+97,geoscience,Natural science,Earth science,3.3
+366,global health,Applied science,Medicine and health,5.13
+68,health informatics,Applied science,Medicine and health,5.13
+310,health law,Applied science,Law,5.11
+325,health psychology,Social science,Psychology,2.6
+293,health science,Applied science,Medicine and health,5.13
+287,health services research,Applied science,Medicine and health,5.13
+61,history,Humanities,History,1.1
+29,horticulture,Applied science,Agriculture,5.1
+263,human neurophysiology,Natural science,Biology,3.1
+2,human rights,Applied science,Law,5.11
+276,humanities,Humanities,,
+102,hydrology,Natural science,Earth science,3.3
+265,image processing,Formal science,Computer science,4.1
+255,immunology,Natural science,Biology,3.1
+33,industrial engineering,Applied science,Engineering and technology: Mechanical,5.6.6
+295,infectious and rare diseases,Applied science,Medicine and health,5.13
+106,informatics,Formal science,Computer science,4.1
+121,information engineering,Applied science,Library and museum studies,5.12
+55,information science,Applied science,Library and museum studies,5.12
+112,information services,Applied science,Business,5.3
+143,information systems,Applied science,Library and museum studies,5.12
+365,information technology,Formal science,Computer science,4.1
+2,intellectual property,Applied science,Law,5.11
+42,international,,,
+60,it,Formal science,Computer science,4.1
+87,knowledge management,Formal science,Computer science,4.1
+144,law,Applied science,Law,5.11
+144,library and information science,Applied science,Library and museum studies,5.12
+394,library science,Applied science,Library and museum studies,5.12
+307,linguistics,Humanities,Languages and literature,1.4
+330,literature and religion,Humanities,Languages and literature,1.4
+185,machine learning,Formal science,Computer science,4.1
+375,management and conservation,Applied science,Environmental studies and forestry,5.7
+59,marine biology,Natural science,Biology,3.1
+8,marine ecology,Natural science,Biology,3.1
+365,materials,Applied science,Engineering and technology: Materials science,5.6.5
+210,materials science,Applied science,Engineering and technology: Materials science,5.6.5
+65,mechanical engineering,Applied science,Engineering and technology: Mechanical engineering,5.6.6
+186,medecine,Applied science,Medicine and health,5.13
+154,media and communication studies,Applied science,"Journalism, media studies and communication",5.10
+265,medical imaging,Formal science,Computer science,4.1
+282,medical sciences,Applied science,Medicine and health,5.13
+39,medicine,Applied science,Medicine and health,5.13
+62,mental health,Social science,Psychology,2.6
+370,metadata management,Applied science,Library and museum studies,5.12
+327,meteorology,Natural science,Earth science,3.3
+249,microbiology,Natural science,Biology,3.1
+67,mobile communication,Formal science,Computer science,4.1
+183,multidisciplinary,,,
+16,multidisciplinary geosciences,Natural science,Earth science,3.3
+79,natural sciences,Natural science,Biology,3.1
+91,network analysis,Social science,Sociology,2.7
+297,network science,Applied science,Engineering and technology: Systems science,5.6.7
+251,neuroimaging,Formal science,Computer science,4.1
+350,neuroinformatics,Formal science,Computer science,4.1
+251,neuroscience,Natural science,Biology,3.1
+19,neurosciences,Natural science,Biology,3.1
+33,north korean studies,Social science,Sociology,2.7
+186,nutrition,Applied science,Medicine and health,5.13
+62,oceanography,Natural science,Earth science,3.3
+255,oncology,Applied science,Medicine and health,5.13
+135,open access,Applied science,Public administration:Public policy,5.15.1
+377,open data,Applied science,Public administration:Public policy,5.15.1
+9,palaeontology,Natural science,Biology,3.1
+109,paleoclimate,Natural science,Earth science,3.3
+272,paleoclimatology,Natural science,Earth science,3.3
+166,pharmacoepidemiology,Applied science,Medicine and health,5.13
+397,philosophy,Humanities,Philosophy,1.6
+292,philosophy of education,Humanities,Philosophy,1.6
+16,physical geography,Natural science,Geography,2.4
+98,physics,Natural science,Physics,3.5
+102,planetary geology,Natural science,Earth science,3.3
+101,plant physiology,Natural science,Biology,3.1
+103,plasma physics,Natural science,Physics,3.5
+199,policy research,Applied science,Public administration,5.15
+340,policy studies,Applied science,Public administration:Public policy,5.15.1
+152,political sociology,Social science,Sociology,2.7
+34,primary biodiversity data,Natural science,Biology,3.1
+60,product management,Applied science,Business,5.3
+271,project management,,,
+258,psychiatry,Applied science,Medicine and health,5.13
+83,psychology,Social science,Psychology,2.6
+164,public health,Applied science,Medicine and health,5.13
+102,remote sensing,Natural science,Earth science,3.3
+87,research data management,Formal science,Computer science,4.1
+45,science & technology policy,Applied science,Public administration:Public policy,5.15.1
+47,science and technology,Social science,Sociology,2.7
+29,science and technology management,Formal science,Computer science,4.1
+33,science and technology policy,Applied science,Public administration:Public policy,5.15.1
+5,science communication,Applied science,"Journalism, media studies and communication",5.10
+346,science policy,Applied science,Public administration:Public policy,5.15.1
+233,sciences,,,
+398,scientific computing,Formal science,Computer science,4.1
+23,scientometrics,Social science,Sociology,2.7
+60,service design,Applied science,Architecture and design,5.2
+292,social psychology,Social science,Sociology,2.6
+275,social scieces,Social science,Sociology,2.7
+170,social science,Social science,Sociology,2.7
+203,social sciences,Social science,Sociology,2.7
+149,sociology,Social science,Sociology,2.7
+370,software development,Formal science,Computer science,4.1
+112,software engineering,Formal science,Computer science,4.1
+103,space physics,Natural science,Physics,3.5
+52,spatial databases,Natural science,Earth science,3.3
+59,statistics,Formal science,Mathematics,4.2
+286,structural biology,Natural science,Biology,3.1
+199,sustainable development,Applied science,Environmental studies and forestry,5.7
+157,systems biomedicine,Applied science,Medicine and health,5.13
+373,systems medicine,Applied science,Medicine and health,5.13
+36,technology management,Applied science,Business,5.3
+36,technology policy,Applied science,Public administration:Public policy,5.15.1
+23,text mining,Formal science,Computer science,4.1
+395,toxicology,Applied science,Medicine and health,5.13
+375,wildlife ecology,Natural science,Biology,3.1
+347,wind energy,Natural science,Earth science,3.3
+17,zoology,Natural science,Biology,3.1
+58,,,,
