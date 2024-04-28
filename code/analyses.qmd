@@ -31,6 +31,8 @@ knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE,
 #| echo: false
 #| eval: true
 #| message: false
+
+library(ltm)
 library(knitr)
 library(webr)
 library(lubridate)
@@ -42,7 +44,7 @@ library(sf)
 sf::sf_use_s2(FALSE)
 library(tidyverse)
 
-survey <- read_csv('data/data_survey_aggregated_1.csv')
+survey <- read_csv('data/data_survey_aggregated.csv')
 survey <- survey %>% 
   remove_empty(c('rows', 'cols')) %>% 
   clean_names() 
@@ -78,6 +80,40 @@ This survey addresses awareness of Open Science activities and existing & expect
 
 **Quick summary** of respondents background: We received `r nrow(survey)` responses, from people working in `r length(unique(survey$which_country_do_you_work_in))` countries, of which `r nrow(filter(survey, gender=='female'))/nrow(survey)*100`% declare their gender was female, `r nrow(filter(survey, gender=='male'))/nrow(survey)*100`% male, `r nrow(filter(survey, gender=='non-binary / gender-queer'))/nrow(survey)*100`% non-binary or gender-queer and `r nrow(filter(survey, gender=='no response'))/nrow(survey)*100`% had no response. Most respondents had 'Researcher' as their main job title (`r nrow(filter(survey, main_position_job_title_which_of_the_following_are_you_now=='Researcher'))/nrow(survey)*100`%), were affiliated to a 'University' (`r nrow(filter(survey, please_select_the_type_of_organisation_you_are_primarily_affiliated_with=='University'))/nrow(survey)*100`%) or a 'Research institute' (`r nrow(filter(survey, please_select_the_type_of_organisation_you_are_primarily_affiliated_with=='Research institute'))/nrow(survey)*100`%), and had between 10 and 20 years of experience in their field (`r nrow(filter(survey, how_long_have_you_been_working_in_your_field=='10-20 years'))/nrow(survey)*100`%).  
 
+
+We calculated **Cronbach's alpha** to assess the reliability of the questions that used binary, Likert, and ordinal scales, revealing an acceptable internal consistency.
+
+```{r}
+#| label: cronbachs-alpha
+#| echo: true
+#| eval: true
+
+survey %>% 
+  select(starts_with('are_you_familiar_with'),
+         starts_with('are_you_involved_in_some_of_the_following'),
+         starts_with('does_your_institute_organisation'),
+         starts_with('could_you_please_specify_to_what_extent'),
+         how_long_have_you_been_working_in_your_field) %>%
+  mutate(across(starts_with('are_you')|starts_with('does_your'), 
+                ~ case_when(.=='Yes' ~ 1,
+                            .=='No' ~ 0,
+                            .default = NA))) %>% 
+  mutate(across(starts_with('could_you'), 
+                ~ case_when(.=='Definitely Not' ~ -2,
+                            .=='Probably Not' ~ -1,
+                            .=='Possibly' ~ 0,
+                            .=='Very Probably' ~ 1,
+                            .=='Definitely' ~ 2,
+                            .default = NA))) %>% 
+  mutate(across(starts_with('how_long'),
+               ~ case_when(.=='< 5 years' ~ 1,
+                          .=='5-10 years' ~ 2,
+                          .=='10-20 years' ~ 3,
+                          .=='> 20 years' ~ 4,
+                          .default = NA))) %>% 
+  cronbach.alpha(CI=T, na.rm = T)
+
+```
 # Section 1
 
 ## Are you familiar with Open Science?
