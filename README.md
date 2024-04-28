@@ -9,9 +9,9 @@ This repository includes the data, code, and figures for our work on analysing t
 
 **To reproduce our analyses** see the Quarto file [analyses.qmd](code/analyses.qmd) or download the *html* file [analyses.html](code/analyses.html) and open it in your browser.  
 
-This repo is available under a [CC-BY](https://creativecommons.org/licenses/by/4.0/deed.es) license. If you use the code/data for your work, please cite our article:
+<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Licencia de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a><br />This repo is available under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">license</a>.  
 
-<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Licencia de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a><br />Este obra está bajo una <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">licencia de Creative Commons Reconocimiento 4.0 Internacional</a>.  
+If you use the code/data for your work, please cite our article:
 
 > Grattarola F., Shmagun H, Erdmann C., Cambon-Thomsen A., Thomsen M., Kim J., Mabile L. (2024) Gaps between Open Science policies activities and actual recognition systems: Insights from an international survey. *PLOS ONE*.  
 
