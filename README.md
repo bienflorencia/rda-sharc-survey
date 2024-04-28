@@ -6,7 +6,7 @@
 This repository includes the data, code, and figures for our work on analysing the SHARC's Open Science Rewards and Incentives Survey. The aim of this study was to identify perceptions and expectations of various research communities worldwide regarding how Open Science activities are (or should be) formally recognised and rewarded.
 
 
-  - To reproduce our analyses, see the Quarto file [analyses.qmd](code/analyses.qmd) or download the *html* file [analyses.html](code/analyses.html) and open it in your browser.
+  - **To reproduce our analyses** see the Quarto file [analyses.qmd](code/analyses.qmd) or download the *html* file [analyses.html](code/analyses.html) and open it in your browser.
 
 
 ---
